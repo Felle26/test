@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model ScheduleWeek {
+  id       String  @id @default(cuid())
+  kw       Int
+  year     Int
+  period   String
+  company  String
+  branch   String
+  shifts   Shift[]
+  isModified Boolean @default(false)
+  isApproved Boolean @default(true)
+  createdAt DateTime @default(now())
+
+  @@unique([year, kw, branch], name: "year_kw_branch")
+}
+
+model Shift {
+  id           String       @id @default(cuid())
+  employeeName String
+  employeeNr   String
+  dayIndex     Int
+  date         String
+  dayTitle     String
+  shiftContent String
+  textColor    String       @default("#1e3a5f")
+  backgroundColor String    @default("#dbeafe")
+  week         ScheduleWeek @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  weekId       String
+}
+
+model Employee {
+  id       String @id @default(cuid())
+  name     String
+  nr       String
+  roles    Role[]
+  createdAt DateTime @default(now())
+
+  @@unique([name, nr], name: "name_nr")
+}
+
+model Role {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  filterTerms String     @default("")
+  employees   Employee[]
+}
+
+model DisplaySettings {
+  id                   Int @id @default(1)
+  screenSaverMinutes   Int @default(5)
+}
