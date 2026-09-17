@@ -61,4 +61,5 @@ model Role {
 model DisplaySettings {
   id                   Int @id @default(1)
   screenSaverMinutes   Int @default(5)
+  weatherCity          String @default("Dresden")
 }

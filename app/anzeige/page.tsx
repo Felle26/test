@@ -16,7 +16,7 @@ export default async function AnzeigePage({ searchParams }: { searchParams: Prom
   const scheduleWeek = await prisma.scheduleWeek.findFirst({
     where: selectedWeek ? { id: selectedWeek.id } : isManagementView ? undefined : { isApproved: true },
     orderBy: selectedWeek ? undefined : { createdAt: "desc" },
-    include: { shifts: { orderBy: [{ employeeName: "asc" }, { dayIndex: "asc" }] } },
+    include: { shifts: { orderBy: [{ employeeNr: "asc" }, { dayIndex: "asc" }] } },
   });
 
   if (!scheduleWeek) {
@@ -31,7 +31,7 @@ export default async function AnzeigePage({ searchParams }: { searchParams: Prom
       employeeMap.set(key, employee);
       return employeeMap;
     }, new Map<string, { name: string; nr: string; shifts: Record<number, { content: string; textColor: string; backgroundColor: string }> }>()).values()
-  );
+  ).sort((firstEmployee, secondEmployee) => firstEmployee.nr.localeCompare(secondEmployee.nr, "de", { numeric: true }) || firstEmployee.name.localeCompare(secondEmployee.name, "de"));
   const days = Array.from({ length: 7 }, (_, dayIndex) => {
     const shift = scheduleWeek.shifts.find((item) => item.dayIndex === dayIndex);
     return { title: shift?.dayTitle ?? "", date: shift?.date ?? "" };

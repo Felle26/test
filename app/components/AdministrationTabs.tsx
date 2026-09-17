@@ -16,6 +16,7 @@ type AdministrationTabsProps = {
   roles: Role[];
   schedules: Schedule[];
   screenSaverMinutes: number;
+  weatherCity: string;
 };
 
 const tabs: { id: Tab; label: string }[] = [
@@ -26,7 +27,7 @@ const tabs: { id: Tab; label: string }[] = [
   { id: "settings", label: "Einstellungen" },
 ];
 
-export default function AdministrationTabs({ employees, roles, schedules, screenSaverMinutes }: AdministrationTabsProps) {
+export default function AdministrationTabs({ employees, roles, schedules, screenSaverMinutes, weatherCity }: AdministrationTabsProps) {
   const [activeTab, setActiveTab] = useState<Tab>("employees");
 
   return <section>
@@ -37,6 +38,6 @@ export default function AdministrationTabs({ employees, roles, schedules, screen
     {activeTab === "filters" && <EmployeeRoleManager initialEmployees={employees} initialRoles={roles} section="filters" />}
     {activeTab === "upload" && <DienstplanViewer />}
     {activeTab === "schedules" && <ScheduleManager schedules={schedules} />}
-    {activeTab === "settings" && <DisplaySettings initialScreenSaverMinutes={screenSaverMinutes} />}
+    {activeTab === "settings" && <DisplaySettings initialScreenSaverMinutes={screenSaverMinutes} initialWeatherCity={weatherCity} />}
   </section>;
 }

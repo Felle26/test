@@ -4,10 +4,11 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function listEmployees() {
-  return prisma.employee.findMany({
+  const employees = await prisma.employee.findMany({
     include: { roles: true },
-    orderBy: { name: "asc" },
   });
+
+  return employees.sort((firstEmployee, secondEmployee) => firstEmployee.nr.localeCompare(secondEmployee.nr, "de", { numeric: true }) || firstEmployee.name.localeCompare(secondEmployee.name, "de"));
 }
 
 export async function listRoles() {

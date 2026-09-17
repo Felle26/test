@@ -29,7 +29,8 @@ export async function updateShiftAction({ weekId, employeeName, employeeNr, dayI
 }
 
 export async function createTestScheduleAction() {
-  const employees = await prisma.employee.findMany({ orderBy: { name: "asc" } });
+  const employees = await prisma.employee.findMany();
+  employees.sort((firstEmployee, secondEmployee) => firstEmployee.nr.localeCompare(secondEmployee.nr, "de", { numeric: true }) || firstEmployee.name.localeCompare(secondEmployee.name, "de"));
   if (employees.length === 0) {
     return { success: false, error: "Es sind keine Mitarbeiter für einen Testdienstplan vorhanden." };
   }
@@ -108,15 +109,17 @@ export async function revokeScheduleApprovalAction(id: string) {
   return { success: true };
 }
 
-export async function updateScreenSaverMinutesAction(screenSaverMinutes: number) {
+export async function updateScreenSaverMinutesAction(screenSaverMinutes: number, weatherCity: string) {
   if (!Number.isInteger(screenSaverMinutes) || screenSaverMinutes < 1 || screenSaverMinutes > 120) {
     return { success: false, error: "Bitte eine Zeit zwischen 1 und 120 Minuten eingeben." };
   }
+  const cleanWeatherCity = weatherCity.trim();
+  if (!cleanWeatherCity) return { success: false, error: "Bitte eine Stadt auswählen." };
 
   await prisma.displaySettings.upsert({
     where: { id: 1 },
-    update: { screenSaverMinutes },
-    create: { id: 1, screenSaverMinutes },
+    update: { screenSaverMinutes, weatherCity: cleanWeatherCity },
+    create: { id: 1, screenSaverMinutes, weatherCity: cleanWeatherCity },
   });
   revalidatePath("/verwaltung");
   revalidatePath("/anzeige");
