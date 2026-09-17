@@ -100,9 +100,13 @@ export default function ScheduleDisplay({ weekId, availableWeeks, isManagementVi
     return role ? hasRoleInShift(employee, role) : false;
   });
 
+  // Excel liefert Zusatzzeilen komplett in Klammern (Pausen, Folgeschichten etc.), die nicht angezeigt werden sollen.
+  const parenthesizedLinePattern = /^\(.*\)$/;
+
   const renderShiftCell = (shift: ScheduleEmployee["shifts"][number]) => {
     if (!shift?.content) return <span className={isDarkMode ? "font-light text-slate-600" : "font-light text-slate-300"}>-</span>;
-    return <div className="rounded border border-slate-300 p-1.5 text-xs font-bold leading-snug" style={{ color: shift.textColor, backgroundColor: shift.backgroundColor }}>{shift.content.split("\n").map((line, index) => <div key={index} className="truncate">{line}</div>)}</div>;
+    const lines = shift.content.split("\n").filter((line) => !parenthesizedLinePattern.test(line.trim()));
+    return <div className="rounded border border-slate-300 p-1.5 text-xs font-bold leading-snug" style={{ color: shift.textColor, backgroundColor: shift.backgroundColor }}>{lines.map((line, index) => <div key={index} className="truncate">{line}</div>)}</div>;
   };
 
   const openEditor = (employee: ScheduleEmployee, dayIndex: number) => {
