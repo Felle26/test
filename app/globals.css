@@ -9,10 +9,27 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html, body {
+  /* Verhindert horizontales Zurück-/Vor-Wischen sowie vertikales Pull-to-Refresh */
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: none;
+  overscroll-behavior: none;
+  touch-action: pan-y; /* Erlaubt nur vertikales Scrollen (falls gewünscht) bzw. 'none' für gar keine Touch-Gesten */
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 input,
