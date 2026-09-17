@@ -55,7 +55,7 @@ const prisma = new PrismaClient({
 #### Log levels
 
 | Level | Description |
-|-------|-------------|
+| ------- | ------------- |
 | `query` | All SQL queries |
 | `info` | Informational messages |
 | `warn` | Warnings |

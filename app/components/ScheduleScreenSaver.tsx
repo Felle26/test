@@ -7,18 +7,25 @@ type ScheduleScreenSaverProps = {
   idleMinutes: number;
 };
 
-const informationItems = [
-  { category: "Nachrichten", title: "Aktuelle Meldungen", detail: "Nachrichtenquelle kann in der Verwaltung angebunden werden." },
-  { category: "Bundesliga 1", title: "Aktuelle Begegnungen", detail: "Spielplan und Ergebnisse werden nach Anbindung einer Sportdatenquelle angezeigt." },
-  { category: "Bundesliga 2", title: "Aktuelle Begegnungen", detail: "Spielplan und Ergebnisse werden nach Anbindung einer Sportdatenquelle angezeigt." },
-  { category: "Eishockey 1", title: "Aktuelle Begegnungen", detail: "Spielplan und Ergebnisse werden nach Anbindung einer Sportdatenquelle angezeigt." },
-  { category: "Eishockey 2", title: "Aktuelle Begegnungen", detail: "Spielplan und Ergebnisse werden nach Anbindung einer Sportdatenquelle angezeigt." },
+type InformationItem = {
+  category: string;
+  title: string;
+  detail: string;
+};
+
+const fallbackInformationItems: InformationItem[] = [
+  { category: "Nachrichten", title: "Aktuelle Meldungen", detail: "Nachrichten werden geladen." },
+  { category: "Bundesliga 1", title: "1. Bundesliga", detail: "Sportdaten werden geladen." },
+  { category: "Bundesliga 2", title: "2. Bundesliga", detail: "Sportdaten werden geladen." },
+  { category: "Eishockey 1", title: "DEL", detail: "Sportdaten werden geladen." },
+  { category: "Eishockey 2", title: "DEL2", detail: "Sportdaten werden geladen." },
 ];
 
 export default function ScheduleScreenSaver({ enabled, idleMinutes }: ScheduleScreenSaverProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [now, setNow] = useState(() => new Date());
   const [informationIndex, setInformationIndex] = useState(0);
+  const [informationItems, setInformationItems] = useState(fallbackInformationItems);
 
   useEffect(() => {
     if (!enabled) return;
@@ -46,6 +53,27 @@ export default function ScheduleScreenSaver({ enabled, idleMinutes }: ScheduleSc
     return () => {
       window.clearInterval(clockInterval);
       window.clearInterval(informationInterval);
+    };
+  }, [informationItems.length, isVisible]);
+
+  useEffect(() => {
+    if (!isVisible) return;
+    let isCurrent = true;
+
+    const loadInformation = async () => {
+      try {
+        const response = await fetch("/api/screensaver-feed");
+        if (!response.ok) return;
+        const feed = await response.json() as { items?: InformationItem[] };
+        if (isCurrent && feed.items?.length) setInformationItems(feed.items);
+      } catch {}
+    };
+
+    void loadInformation();
+    const refreshInterval = window.setInterval(() => void loadInformation(), 15 * 60 * 1000);
+    return () => {
+      isCurrent = false;
+      window.clearInterval(refreshInterval);
     };
   }, [isVisible]);
 
